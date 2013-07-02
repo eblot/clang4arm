@@ -7,3 +7,6 @@
 [submodule "clang"]
 	path = clang
 	url = git@github.com:eblot/clang.git
+[submodule "newlib"]
+	path = newlib
+	url = git@github.com:eblot/newlib.git
