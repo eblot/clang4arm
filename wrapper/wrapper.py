@@ -93,9 +93,18 @@ else:
         if arg.startswith('-x'):
             skip = True
             continue
+        if arg.startswith('-L'):
+            if len(arg) > 2:
+                skip = True
+            continue
+        if arg.startswith('-B'):
+            arg = '-I%s' % arg[2:]
+        if arg.startswith('-isystem'):
+            arg = '-I%s' % arg[8:]
         options.append(arg)
 cmd = '%s-%s %s' % (XTOOLCHAIN, tool, ' '.join(options))
 rc = os.system(cmd)
 if rc:
-    print cmd
+    print 'Failed command:'
+    print ' ', cmd
 sys.exit(rc and 1 or 0)
