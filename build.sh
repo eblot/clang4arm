@@ -171,6 +171,9 @@ fi
 if [ ${RUN_CLANG} -gt 0 ]; then
 	echo "Building clang..."
 	# out-of-source build
+	if [ ${CLEAN} -gt 0 ]; then
+		rm -rf "${BUILD}/llvm"
+	fi
 	mkdir -p "${BUILD}/llvm"
 	(cd "${BUILD}/llvm" && \
 		"${TOPDIR}/llvm/configure" \
@@ -178,7 +181,6 @@ if [ ${RUN_CLANG} -gt 0 ]; then
 		make -j${JOBS} &&
 		make install) || exit 1
 	export CC="${PREFIX}/bin/clang"
-	echo "---"
 	echo ""
 fi
 
@@ -188,8 +190,11 @@ export PATH="${PREFIX}/bin":$PATH
 
 if [ ${RUN_WRAPPER} -gt 0 ]; then
 	echo "Building gcc wrapper for ${XTOOLCHAIN}..."
-	mkdir -p build/wrapper
-	(cd build/wrapper &&
+	if [ ${CLEAN} -gt 0 ]; then
+		rm -rf "${BUILD}/wrapper"
+	fi
+	mkdir -p ${BUILD}/wrapper
+	(cd ${BUILD}/wrapper &&
 		clang -std=c99 -O3 -o wrapper ../../wrapper/wrapper.c &&
 		cp wrapper "${PREFIX}/bin/${XTOOLCHAIN}-gcc" &&
 		cat ../../wrapper/wrapper.py | \
@@ -197,7 +202,6 @@ if [ ${RUN_WRAPPER} -gt 0 ]; then
 			sed 's^NEWLIB=""^NEWLIB="'${PREFIX}'"^' | \
 			sed 's^COMPILER_RT=""^COMPILER_RT="'${PREFIX}/lib/${XTOOLCHAIN}'"^' > \
 				"${PREFIX}/bin/wrapper.py") || exit 1
-	echo "---"
 	echo ""
 fi
 
@@ -209,6 +213,9 @@ fi
 if [ ${RUN_NEWLIB} -gt 0 ]; then
 	echo "Building newlib for ${XTOOLCHAIN}..."
 	# out-of-source build
+	if [ ${CLEAN} -gt 0 ]; then
+		rm -rf "${BUILD}/newlib"
+	fi
 	mkdir -p "${BUILD}/newlib"
 	CLANG="${PREFIX}/bin/clang"
 	export CC="${CLANG}"
@@ -227,17 +234,26 @@ if [ ${RUN_NEWLIB} -gt 0 ]; then
 			--target="${XTOOLCHAIN}" && \
 		make -j${JOBS} ${MAKE_OPT} &&
 		make install) || exit 1
-	echo "---"
 	echo ""
 fi
 
 if [ ${RUN_RUNTIME} -gt 0 ]; then
 	echo "Building compiler-rt for ${XTOOLCHAIN}..."
+	if [ ${CLEAN} -gt 0 ]; then
+		(cd "${TOPDIR}/llvm/projects/compiler-rt" && \
+			make clean)
+	fi
 	# in-source build
 	(cd "${TOPDIR}/llvm/projects/compiler-rt" && \
 		make -j${JOBS} ${MAKE_OPT} \
 			XTOOLCHAIN="${XTOOLCHAIN}" NEWLIB="${PREFIX}/newlib" \
-			clang_generic_arm) || exit 1
-	echo "---"
+			clang_generic_arm && \
+		(cd clang_generic_arm && \
+		 	for d in arm*; do \
+		 		mkdir -p "${PREFIX}/lib/clang/${CLANG_VERSION}/lib/$d"; \
+		 		cp "$d/libcompiler_rt.a" \
+		 			"${PREFIX}/lib/clang/${CLANG_VERSION}/lib/$d/"; \
+		 	done \
+		)) || exit 1
 	echo ""
 fi
