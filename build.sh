@@ -44,6 +44,7 @@ EOT
 
 CLEAN=0
 VERBOSE=0
+MAKE_OPT=""
 RUN_CLANG=0
 RUN_NEWLIB=0
 RUN_RUNTIME=0
@@ -69,6 +70,7 @@ while [ $# -gt 0 ]; do
         ;;
       -v)
         VERBOSE=1
+        MAKE_OPT="VERBOSE=1"
         ;;
       -p)
 		shift
@@ -223,7 +225,7 @@ if [ ${RUN_NEWLIB} -gt 0 ]; then
 		    --enable-serial-configure \
 			--prefix="${PREFIX}" \
 			--target="${XTOOLCHAIN}" && \
-		make -j${JOBS} &&
+		make -j${JOBS} ${MAKE_OPT} &&
 		make install) || exit 1
 	echo "---"
 	echo ""
@@ -233,7 +235,8 @@ if [ ${RUN_RUNTIME} -gt 0 ]; then
 	echo "Building compiler-rt for ${XTOOLCHAIN}..."
 	# in-source build
 	(cd "${TOPDIR}/llvm/projects/compiler-rt" && \
-		make -j${JOBS} XTOOLCHAIN="${XTOOLCHAIN}" NEWLIB="${PREFIX}/newlib" \
+		make -j${JOBS} ${MAKE_OPT} \
+			XTOOLCHAIN="${XTOOLCHAIN}" NEWLIB="${PREFIX}/newlib" \
 			clang_generic_arm) || exit 1
 	echo "---"
 	echo ""
