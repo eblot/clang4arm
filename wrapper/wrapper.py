@@ -20,6 +20,7 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
     relocatable = False
     stdlib = True
     extras = []
+    xarch = 'armv4t'
     if not NEWLIB or not COMPILER_RT:
         raise AssertionError("Library paths are not defined")
     for arg in sys.argv[1:]:
@@ -44,7 +45,7 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
             relocatable = True
         options.append(arg)
     options.append('-L%s/%s/lib' % (NEWLIB, XTOOLCHAIN))
-    options.append('-L%s' % COMPILER_RT)
+    options.append('-L%s/lib/%s' % (COMPILER_RT, xarch))
     # libraries should be placed AFTER .o files
     options.extend(extras)
     if stdlib:

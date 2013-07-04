@@ -116,6 +116,8 @@ if [ ${RUN_ALL} -gt 0 ]; then
 	RUN_WRAPPER=1
 fi
 
+RT_ROOT="${PREFIX}/lib/clang/${CLANG_VERSION}"
+
 # Verify GNU make
 MAKE=`which make 2> /dev/null`
 if [ -z "${MAKE}" ]; then
@@ -177,6 +179,7 @@ if [ ${RUN_CLANG} -gt 0 ]; then
 	mkdir -p "${BUILD}/llvm"
 	(cd "${BUILD}/llvm" && \
 		"${TOPDIR}/llvm/configure" \
+		    --enable-optimized \
 			--prefix="${PREFIX}" && \
 		make -j${JOBS} &&
 		make install) || exit 1
@@ -200,7 +203,7 @@ if [ ${RUN_WRAPPER} -gt 0 ]; then
 		cat ../../wrapper/wrapper.py | \
 			sed 's^XTOOLCHAIN=""^XTOOLCHAIN="'${XTOOLCHAIN}'"^' | \
 			sed 's^NEWLIB=""^NEWLIB="'${PREFIX}'"^' | \
-			sed 's^COMPILER_RT=""^COMPILER_RT="'${PREFIX}/lib/${XTOOLCHAIN}'"^' > \
+			sed 's^COMPILER_RT=""^COMPILER_RT="'${RT_ROOT}'"^' > \
 				"${PREFIX}/bin/wrapper.py") || exit 1
 	echo ""
 fi
@@ -252,7 +255,7 @@ if [ ${RUN_RUNTIME} -gt 0 ]; then
 		 	for d in arm*; do \
 		 		mkdir -p "${PREFIX}/lib/clang/${CLANG_VERSION}/lib/$d"; \
 		 		cp "$d/libcompiler_rt.a" \
-		 			"${PREFIX}/lib/clang/${CLANG_VERSION}/lib/$d/"; \
+		 			"${RT_ROOT}/lib/$d/"; \
 		 	done \
 		)) || exit 1
 	echo ""
