@@ -1,12 +1,12 @@
 [submodule "llvm"]
 	path = llvm
-	url = git@github.com:eblot/llvm.git
+	url = ../llvm.git
 [submodule "compiler-rt"]
 	path = compiler-rt
-	url = git@github.com:eblot/compiler-rt.git
+	url = ../compiler-rt.git
 [submodule "clang"]
 	path = clang
-	url = git@github.com:eblot/clang.git
+	url = ../clang.git
 [submodule "newlib"]
 	path = newlib
-	url = git@github.com:eblot/newlib.git
+	url = ../newlib.git
