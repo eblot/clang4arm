@@ -90,6 +90,7 @@ The current package is based on the official LLVM/clang v3.3 final release.
 
     git clone https://github.com/eblot/clang4arm
     cd clang4arm
+    git checkout release_33
     git submodule init
     git submodule update
 
