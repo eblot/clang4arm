@@ -1,7 +1,7 @@
-# Clang for ARM embedded targets
+# Clang for embedded ARM v4/v5 targets
 
-clang4arm aims at providing a toolchain for legacy ARM targets (ARMv4T, ARMv5),
-without relying on the GCC compiler suite.
+**clang4arm** aims at providing a toolchain for legacy ARM targets (ARMv4T,
+ARMv5), without relying on the GCC compiler suite.
 
 ## Motivations
 
@@ -71,7 +71,7 @@ this toolchain.
 
 ## Components
 
-The clang4arm toolchain comprises:
+The **clang4arm** toolchain includes:
 
   * [LLVM](http://llvm.org) toolchain
   * [clang](http://clang.llvm.org) front-end
@@ -92,6 +92,30 @@ The current package is based on the official LLVM/clang v3.3 final release.
     cd clang4arm
     git submodule init
     git submodule upgrade
+
+## Building the binutils tool suite
+
+Building the binutils tool suite is out-of-scope of this document, but can be
+easily achieved with the following command sequence:
+
+    tar xvf binutils binutils-2.23.2.tar.bz2
+    mkdir build
+    cd build
+    ../binutils*/configure --target=arm-eabi --disable-werror --disable-debug
+    make
+    (sudo) make install
+
+### Notes
+
+  1. Do not forget to have a look at `configure --help` output to get more
+    build and installation options to fit your need and your current
+    environment.
+  2. If you install the binutils within a custom destination directory, do not
+    forget to add its sub-dir `bin` directory to your current `PATH`
+  3. `--target` option value should match the `toolchain` string from
+    `./build.sh -t toolchain` in the following installation sequence.
+    Please note that **clang4arm** has not been tested with any other target
+    *triplet* setting.
 
 ## Building the toolchain
 
@@ -165,11 +189,11 @@ to support legacy ARM architectures and OS-less configurations.
   2. Apple-specific assembly directive `.subsections_via_symbols` has been
      replaced with its generic, conditional macro definitions
      `FILE_LEVEL_DIRECTIVE`
-       * lib/arm/switch16.S
-       * lib/arm/switch32.S
-       * lib/arm/switch8.S
-       * lib/arm/switchu8.S
-       * lib/arm/sync_synchronize.S
+       * `lib/arm/switch16.S`
+       * `lib/arm/switch32.S`
+       * `lib/arm/switch8.S`
+       * `lib/arm/switchu8.S`
+       * `lib/arm/sync_synchronize.S`
   3. `__USER_LABEL_PREFIX__` default definition to `_` has been replaced with
     an empty string.
   4. `armv4t` target has been added to the supported target list.
@@ -225,7 +249,7 @@ the wrapper script.
 
 ## build.sh
 
-This simple script is in charge of building the various stage of clang4arm:
+This simple script is in charge of building the various stage of **clang4arm**:
 
   1. llvm + clang
   2. newlib for ARM
@@ -250,8 +274,13 @@ You may get usage documentation with the `-h` option switch:
         -n              Run newlib build/installation stage
         -r              Run compiler runtime build/installation stage
 
-Note that automatic job selection is not implemented on Linux. I guess it's
-the matter of a couple of lines using the `/proc` FS...
+### Notes
+
+  1. Automatic job selection is not implemented on Linux. I guess it's the 
+    matter of a couple of lines using the `/proc` FS. Patch welcomed!
+  2. `build.sh` runs all build & installation stages one after another. If one
+    or more *debug mode* option switches are set, the other stages are
+    deselected and therefore ignored. This is mainly useful for debug purposes.
 
 ### Final note
 
