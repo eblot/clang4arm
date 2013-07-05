@@ -256,6 +256,8 @@ if [ ${RUN_RUNTIME} -gt 0 ]; then
 		 		mkdir -p "${PREFIX}/lib/clang/${CLANG_VERSION}/lib/$d"; \
 		 		cp "$d/libcompiler_rt.a" \
 		 			"${RT_ROOT}/lib/$d/"; \
+		 	    ${XTOOLCHAIN}-ar q "${RT_ROOT}/lib/$d/libgcc.a"
+		 	    ${XTOOLCHAIN}-ar q "${RT_ROOT}/lib/$d/libsupc++.a"
 		 	done \
 		)) || exit 1
 	echo ""
