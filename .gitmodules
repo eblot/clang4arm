@@ -1,12 +1,12 @@
 [submodule "llvm"]
 	path = llvm
-	url = ./llvm.git
+	url = ../llvm
 [submodule "compiler-rt"]
 	path = compiler-rt
-	url = ./compiler-rt.git
+	url = ../compiler-rt
 [submodule "clang"]
 	path = clang
-	url = ./clang.git
+	url = ../clang
 [submodule "newlib"]
 	path = newlib
-	url = ./newlib.git
+	url = ../newlib

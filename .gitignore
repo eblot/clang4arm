@@ -1,5 +1,1 @@
 build/
-clang.git
-compiler-rt.git
-llvm.git
-newlib.git
