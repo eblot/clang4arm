@@ -12,11 +12,21 @@ if [ "${UNAME}" = "Darwin" ]; then
     export DYLD_LIBRARY_PATH=""
     export DYLD_FALLBACK_LIBRARY_PATH=""
     CPUCORES=`sysctl hw.ncpu | cut -d: -f2`
-    _DEBUGGER="lldb --"
+	# WARNING: on OS X, it seems that using an alternative "make" executable
+	# breaks compiler-rt build, as the wrong compiler is invoked with ARM
+	# target. Not sure why, but llvm-gcc for ARM get called instead of the
+	# wrapper. Maybe an implicit rule?
+    MAKE=`which make 2> /dev/null`
+    MAKE_VER=`${MAKE} --version | head -1 | sed s'/^[^0-9\.]*//'`
+    MAKE_MAJ=`echo ${MAKE_VER} | cut -d. -f1`
+    MAKE_MIN=`echo ${MAKE_VER} | cut -d. -f2`
+    if [ ${MAKE_MAJ} -ne 3 -o ${MAKE_MIN} -ne 81 ]; then
+    	echo "WARNING: Using an alternative make tool breaks compiler-rt" >&2
+    	echo "" >&2
+    fi
 else
     export LD_LIBRARY_PATH=""
     CPUCORES=1 # to be implemented on Linux
-    _DEBUGGER="gdb --args"
 fi
 
 JOBS=`expr ${CPUCORES} + 1`
