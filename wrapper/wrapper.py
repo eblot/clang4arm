@@ -48,10 +48,20 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
     options.append('-L%s/lib/%s' % (COMPILER_RT, xarch))
     # libraries should be placed AFTER .o files
     options.extend(extras)
+    for pos, opt in enumerate(options):
+        if opt.startswith('-l'):
+            break
+    # this is a kludge: there is no relationship between relocatable
+    # specifier and libraries. It should be fixed ASAP. The kludge is useful
+    # when building the runtime and newlib libraries
+    if not relocatable:
+        # runtime may contain reference to libc symbols, such as memcpy...
+        # add it before the very first library specifier
+        options.insert(pos, '-lcompiler_rt')
+        # other libraries may rely on runtime symbols, so add it another time
+        options.append('-lcompiler_rt')
     if stdlib:
         options.append('-lc')
-    if not relocatable:
-        options.append('-lcompiler_rt')
     if '--Map' in options:
         # fix map file path if any so that it is created in the same directory
         # as the output file.
