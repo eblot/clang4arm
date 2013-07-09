@@ -44,6 +44,7 @@ website that provides official toolchain packages.
   * GNU [make](http://www.gnu.org/software/make)
   * Host toolchain (based on clang or GCC)
   * [Python](http://www.python.org/) 2.7
+  * texinfo
 
 ## Supported hosts
 
