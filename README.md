@@ -137,6 +137,15 @@ been successfully completed:
 
     export PATH=$PATH:/usr/local/clang-3.3/bin
 
+Note that the installation directory is left writable for the current user, to
+simplify maintenance - this project is at an early development stage.
+
+It is recommended to change the permissions back to a more protected state:
+
+    sudo chown -R root /usr/local/clang-3.3
+
+once the installation has completed.
+
 # Package details
 
 This following sections describe the changes made to the pristine source code.
