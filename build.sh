@@ -231,6 +231,7 @@ if [ ${RUN_NEWLIB} -gt 0 ]; then
 	fi
 	mkdir -p "${BUILD}/newlib"
 	CLANG="${PREFIX}/bin/clang"
+	export CLANG_BOOTSTRAP=1
 	export CC="${CLANG}"
 	export CC_FOR_TARGET="${CLANG}"
 	export CXX_FOR_TARGET="${CLANG}"
@@ -248,6 +249,7 @@ if [ ${RUN_NEWLIB} -gt 0 ]; then
 		make -j${JOBS} ${MAKE_OPT} &&
 		make install) || exit 1
 	echo ""
+	unset CLANG_BOOTSTRAP
 fi
 
 if [ ${RUN_RUNTIME} -gt 0 ]; then
@@ -257,6 +259,12 @@ if [ ${RUN_RUNTIME} -gt 0 ]; then
 			make clean)
 	fi
 	# in-source build
+    # build the runtime and install it
+    # create an empty archive for GCC runtime, as the GNU linker sometimes try
+    # to automatically load it (when it loads standard libraries)
+    # create an empty archive for C++ support, as the GNU linker always try to
+    # load it when it detects C++ code, even when libsupc++ is not required.
+	export CLANG_BOOTSTRAP=1
 	(cd "${TOPDIR}/llvm/projects/compiler-rt" && \
 		make -j${JOBS} ${MAKE_OPT} \
 			XTOOLCHAIN="${XTOOLCHAIN}" NEWLIB="${PREFIX}/newlib" \
@@ -271,4 +279,5 @@ if [ ${RUN_RUNTIME} -gt 0 ]; then
 		 	done \
 		)) || exit 1
 	echo ""
+	unset CLANG_BOOTSTRAP
 fi

@@ -51,10 +51,8 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
     for pos, opt in enumerate(options):
         if opt.startswith('-l'):
             break
-    # this is a kludge: there is no relationship between relocatable
-    # specifier and libraries. It should be fixed ASAP. The kludge is useful
-    # when building the runtime and newlib libraries
-    if not relocatable:
+    # Do not link against runtime when building the toolchain
+    if not os.getenv('CLANG_BOOTSTRAP'):
         # runtime may contain reference to libc symbols, such as memcpy...
         # add it before the very first library specifier
         options.insert(pos, '-lcompiler_rt')
