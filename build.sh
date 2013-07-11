@@ -37,7 +37,7 @@ usage()
     NAME=`basename $0`
     cat <<EOT
 $NAME [options] [args]
-  Build and execute Neotion VM
+  Build Clang for ARMv4/ARMv5 EABI targets
     -h              Print this help message
     -c              Clean all
     -j N            Build jobs (default: ${JOBS})
@@ -73,7 +73,7 @@ while [ $# -gt 0 ]; do
         ;;
       -j*)
         JOBS=`echo "$1" | cut -c3-`
-        if [ -n "${JOBS}" ]; then
+        if [ -z "${JOBS}" ]; then
             shift
             JOBS="$1"
         fi
