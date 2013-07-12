@@ -46,6 +46,7 @@ $NAME [options] [args]
 
   Debug mode
     -l              Run clang build/installation stage
+    -s              Run clang static analyser stage
     -w              Run wrapper build/installation stage
     -n              Run newlib build/installation stage
     -r              Run compiler runtime build/installation stage
@@ -59,6 +60,7 @@ RUN_CLANG=0
 RUN_NEWLIB=0
 RUN_RUNTIME=0
 RUN_WRAPPER=0
+RUN_CHECKER=0
 RUN_ALL=1
 
 # Parse the command line and update configuration
@@ -94,6 +96,10 @@ while [ $# -gt 0 ]; do
 		RUN_CLANG=1
 		RUN_ALL=0
 		;;
+	  -s)
+		RUN_CHECKER=1
+		RUN_ALL=0
+		;;
 	  -n)
 		RUN_NEWLIB=1
 		RUN_ALL=0
@@ -124,6 +130,7 @@ if [ ${RUN_ALL} -gt 0 ]; then
 	RUN_NEWLIB=1
 	RUN_RUNTIME=1
 	RUN_WRAPPER=1
+	RUN_CHECKER=1
 fi
 
 RT_ROOT="${PREFIX}/lib/clang/${CLANG_VERSION}"
@@ -194,6 +201,21 @@ if [ ${RUN_CLANG} -gt 0 ]; then
 		make -j${JOBS} &&
 		make install) || exit 1
 	export CC="${PREFIX}/bin/clang"
+	echo ""
+fi
+
+if [ ${RUN_CHECKER} -gt 0 ]; then
+	echo "Installing clang checker..."
+	mkdir -p "${PREFIX}/checker/"
+	mkdir -p "${PREFIX}/checker/Resources"
+	(cd "${TOPDIR}/llvm/tools/clang/tools/scan-build" && \
+		cp c++-analyzer ccc-analyzer scan-build set-xcode-analyzer \
+		    scanview.css sorttable.js "${PREFIX}/checker/" &&
+		cp scan-build.1 "${PREFIX}/share/man/man1/") &&
+	(cd "${TOPDIR}/llvm/tools/clang/tools/scan-view" && \
+		cp scan-view Reporter.py ScanView.py startfile.py \
+		    "${PREFIX}/checker/" &&
+		cp Resources/* "${PREFIX}/checker/Resources/") || exit 1
 	echo ""
 fi
 
