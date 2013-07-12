@@ -18,6 +18,7 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
     #print "Linker mode"
     tool = 'ld'
     relocatable = False
+    incremental = False
     stdlib = True
     extras = []
     xarch = 'armv4t'
@@ -43,6 +44,8 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
             stdlib = False
         if arg == '-r':
             relocatable = True
+        if arg == '-i':
+            incremental = True
         options.append(arg)
     options.append('-L%s/%s/lib' % (NEWLIB, XTOOLCHAIN))
     options.append('-L%s/lib/%s' % (COMPILER_RT, xarch))
@@ -52,14 +55,17 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
         if opt.startswith('-l'):
             break
     # Do not link against runtime when building the toolchain
-    if not os.getenv('CLANG_BOOTSTRAP'):
+    if not relocatable and not incremental:
         # runtime may contain reference to libc symbols, such as memcpy...
         # add it before the very first library specifier
-        options.insert(pos, '-lcompiler_rt')
         # other libraries may rely on runtime symbols, so add it another time
+        # options.append('-lcompiler_rt')
+        if stdlib:
+            options.append('--start-group')
+            options.append('-lc')
         options.append('-lcompiler_rt')
-    if stdlib:
-        options.append('-lc')
+        if stdlib:
+            options.append('--end-group')
     if '--Map' in options:
         # fix map file path if any so that it is created in the same directory
         # as the output file.
