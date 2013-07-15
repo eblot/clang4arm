@@ -216,6 +216,27 @@ to support legacy ARM architectures and OS-less configurations.
   7. Remove use of Apple-specific LIPO tool to create the runtime library
     archive and select the proper Binutils tools.
 
+## clang static analysis
+
+Clang static analyzer scripts do not run out-of-the-box. A couple of changes
+have been made to allow the analyzer to run with ARM-EABI targets.
+
+### Changes
+
+ 1. *ccc-analyser* assumes that a cross-compilation target is selected with the
+   `-arch` option switch. As clang4arm uses `-target` to select the target,
+   *ccc-analyser* were trying to use native compilation, *e.g.* target==host.
+   Support for `-target` has been added.
+ 2. *scan-build* knew about GNU make, not about the alternative build system
+   [ninja](http://martine.github.io/ninja/).
+ 3. *scan-build* did not allow to specify a custom path for the C and C++
+   analyzer. Two new option switches have been added, as for some build system,
+   an intermediate script is required to run the analyzer script, in order to
+   differencaite compilation steps from link steps.
+ 4. *scan-view* assumes the default Python interpreter is a 2.x series.
+   Whenever the default interpreter is a 3.x series, the script fails. The
+   she-bang line has been tweaked to run Python2.7
+
 ## Gcc Wrapper
 
 Clang front-end, which uses LLVM to build assembly source for the selected
@@ -272,7 +293,7 @@ You may get usage documentation with the `-h` option switch:
 
     $ ./build.sh -h
     build.sh [options] [args]
-      Build and execute Neotion VM
+      Build Clang for ARMv4/ARMv5 EABI targets
         -h              Print this help message
         -c              Clean all
         -j N            Build jobs (default: 5)
@@ -281,6 +302,7 @@ You may get usage documentation with the `-h` option switch:
     
       Debug mode
         -l              Run clang build/installation stage
+        -s              Run clang static analyser stage
         -w              Run wrapper build/installation stage
         -n              Run newlib build/installation stage
         -r              Run compiler runtime build/installation stage
