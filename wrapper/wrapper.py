@@ -24,7 +24,12 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
     xarch = 'armv4t'
     if not NEWLIB or not COMPILER_RT:
         raise AssertionError("Library paths are not defined")
+    skip = False
     for arg in sys.argv[1:]:
+        if skip:
+            skip = False
+            if not arg.startswith('-'):
+                continue
         if arg.startswith('-f'):
             continue
         if arg.startswith('-mcpu'):  # should we?
@@ -37,14 +42,22 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
             continue
         if arg.startswith('-f'):
             continue
+        if arg.startswith('--sysroot'):
+            continue
+        if arg.startswith('-D') or arg.startswith('-U'):
+            skip = True
+            continue
         if arg.startswith('-l'):
             extras.append(arg)
+            continue
+        if arg == '-pipe':
+            # cause a 'bad -rpath option' for some reason
             continue
         if arg == '-nostdlib':
             stdlib = False
         if arg == '-r':
             relocatable = True
-        if arg == '-i':
+        if arg == '-r':
             incremental = True
         options.append(arg)
     options.append('-L%s/%s/lib' % (NEWLIB, XTOOLCHAIN))
@@ -77,7 +90,8 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
         except Exception, e:
             print "Error", e
 else:
-    #print "Assembler mode"
+    if verbose:
+        print >> sys.stderr, "Assembler mode"
     tool = 'as'
     skip = False
     for arg in sys.argv[1:]:
@@ -85,6 +99,8 @@ else:
             skip = False
             if not arg.startswith('-'):
                 continue
+        if arg in ('-nostdsysteminc', '-nobuiltininc', '-nostdinc'):
+            continue
         if arg.startswith('-f'):
             continue
         if arg.startswith('-W'):
@@ -120,6 +136,9 @@ else:
 cmd = '%s-%s %s' % (XTOOLCHAIN, tool, ' '.join(options))
 rc = os.system(cmd)
 if rc:
-    print 'Failed command:'
-    print ' ', cmd
+    print >> sys.stderr, 'Failed command:'
+    print >> sys.stderr, ' ', cmd
+    if verbose:
+        for opt in options:
+            print >> sys.stderr, " ", opt
 sys.exit(rc and 1 or 0)
