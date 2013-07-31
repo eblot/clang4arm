@@ -99,7 +99,8 @@ else:
             skip = False
             if not arg.startswith('-'):
                 continue
-        if arg in ('-nostdsysteminc', '-nobuiltininc', '-nostdinc'):
+        if arg in ('-nostdsysteminc', '-nobuiltininc', '-nostdinc',
+                   '-nostdlib', '-nostartfiles'):
             continue
         if arg.startswith('-f'):
             continue
@@ -124,8 +125,8 @@ else:
         if arg.startswith('-x'):
             skip = True
             continue
-        if arg.startswith('-L'):
-            if len(arg) > 2:
+        if arg.startswith('-L') or arg.startswith('-T'):
+            if len(arg) < 3:
                 skip = True
             continue
         if arg.startswith('-B'):
