@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CLANG_VERSION="3.3"
+CLANG_VERSION="3.4"
 XTOOLCHAIN="arm-eabi"
 PREFIX="/usr/local/clang-${CLANG_VERSION}"
 BUILD="build"
