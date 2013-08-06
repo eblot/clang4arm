@@ -14,8 +14,10 @@ if not XTOOLCHAIN:
 
 options = []
 
+verbose = '-v' in sys.argv
 if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
-    #print "Linker mode"
+    if verbose:
+        print >> sys.stderr, "Linker mode"
     tool = 'ld'
     relocatable = False
     incremental = False
