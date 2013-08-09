@@ -24,9 +24,11 @@ if [ "${UNAME}" = "Darwin" ]; then
     	echo "WARNING: Using an alternative make tool breaks compiler-rt" >&2
     	echo "" >&2
     fi
-else
+elif [ "${UNAME}" = "Linux" ]; then
     export LD_LIBRARY_PATH=""
-    CPUCORES=1 # to be implemented on Linux
+    CPUCORES=`cat /proc/cpuinfo | grep processor | wc -l`
+else
+    CPUCORES=1 # to be implemented
 fi
 
 JOBS=`expr ${CPUCORES} + 1`
