@@ -15,7 +15,10 @@ if not XTOOLCHAIN:
 options = []
 
 verbose = '-v' in sys.argv
-if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
+if '-E' in sys.argv:
+    print >> sys.stderr, "Invalid run mode: preprocessor"
+    sys.exit(1)
+if '-c' not in sys.argv and '-x' not in sys.argv:
     if verbose:
         print >> sys.stderr, "Linker mode"
     tool = 'ld'
@@ -51,6 +54,8 @@ if '-Wl' in [x[:3] for x in sys.argv if x.startswith('-')]:
             continue
         if arg.startswith('-l'):
             extras.append(arg)
+            continue
+        if arg.startswith('-m'):
             continue
         if arg == '-pipe':
             # cause a 'bad -rpath option' for some reason
@@ -96,11 +101,15 @@ else:
         print >> sys.stderr, "Assembler mode"
     tool = 'as'
     skip = False
+    force_skip = False
     for arg in sys.argv[1:]:
         if skip:
             skip = False
             if not arg.startswith('-'):
                 continue
+        if force_skip:
+            force_skip = False
+            continue
         if arg in ('-nostdsysteminc', '-nobuiltininc', '-nostdinc',
                    '-nostdlib', '-nostartfiles'):
             continue
@@ -130,6 +139,11 @@ else:
         if arg.startswith('-L') or arg.startswith('-T'):
             if len(arg) < 3:
                 skip = True
+            continue
+        if arg.startswith('-msoft-float'):
+            continue
+        if arg == '-mllvm':
+            force_skip = True
             continue
         if arg.startswith('-B'):
             arg = '-I%s' % arg[2:]
