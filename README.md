@@ -3,6 +3,25 @@
 **clang4arm** aims at providing a toolchain for legacy ARM targets (ARMv4T,
 ARMv5), without relying on the GCC compiler suite.
 
+## Note
+
+This project is no longer maintained, as Clang/LLVM toolchain has been improved
+quite a lot since its inception, and I've moved away from ARM7TDMI/ARM926EJ for
+a while.
+
+Checkout the [homebrew-armeabi](https://github.com/eblot/homebrew-armeabi) 
+repository where support for Cortex-M0+ and Cortex-M4F provides a better approach
+to build a toolchain for legacy ARM cores. These toolchains are used to build
+binaries on a daily basis, for Nordik nRF52, STM32L4 and STM32L0.
+
+Moreover, the Clang/LLVM 6.x upcoming toolchain now allows to use the integrated
+LLD linker to link without any binutils tools.
+
+ARM7TDMI is quite older than Cortex-M0, but it should be quite easy to backport
+the Homebrew recipe. You may hit some issues with the compiler-rt and the old 
+ARM ISA (Thumb1 / ARM32); however this obsolete project may provide some hints
+with this part.
+
 ## Motivations
 
 Clang current release (v3.3) offers limited support for these targets: although
